@@ -60,15 +60,31 @@
         </el-table-column>
         <el-table-column prop="totalCuttingHours" label="切削工时(h)" width="110" />
         <el-table-column prop="accumulatedWear" label="磨损量(mm)" width="110" />
+        <el-table-column prop="originalPrice" label="原价(元)" width="100">
+          <template #default="{ row }">¥{{ Number(row.originalPrice).toFixed(2) }}</template>
+        </el-table-column>
+        <el-table-column prop="residualValue" label="残余价值(元)" width="110">
+          <template #default="{ row }">
+            <span :style="{ color: row.residualValue > 0 ? '#e6a23c' : '#909399', fontWeight: 600 }">
+              ¥{{ Number(row.residualValue).toFixed(2) }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
             <el-tag :type="getStatusType(row.status)" size="small">{{ getStatusLabel(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
             <el-button type="warning" link size="small" @click="handleRecalculate(row)">重算健康度</el-button>
+            <el-button
+              v-if="row.status === 'SCRAPPED'"
+              type="success" link size="small"
+              @click="goToVoucher(row)">
+              折价凭证
+            </el-button>
             <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -120,6 +136,12 @@
         <el-form-item label="最大磨损限量">
           <el-input-number v-model="formData.maxWearLimit" :min="0.001" :precision="4" :step="0.01" style="width: 100%" />
         </el-form-item>
+        <el-form-item label="采购原价(元)">
+          <el-input-number v-model="formData.originalPrice" :min="0" :precision="2" :step="100" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="近三月产值(元)">
+          <el-input-number v-model="formData.threeMonthOutput" :min="0" :precision="2" :step="1000" style="width: 100%" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -131,9 +153,11 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getToolList, createTool, updateTool, deleteTool, recalculateHealth } from '../api/tool'
 
+const router = useRouter()
 const loading = ref(false)
 const submitLoading = ref(false)
 const dialogVisible = ref(false)
@@ -149,6 +173,7 @@ const formData = reactive({
   rfidCode: '', toolCode: '', toolName: '', toolType: 'TURNING',
   specification: '', machineId: '', machineName: '',
   maxCuttingHours: 500, maxWearLimit: 0.5,
+  originalPrice: 0, threeMonthOutput: 0,
 })
 
 function getHealthColor(score) {
@@ -204,6 +229,7 @@ function showAddDialog() {
     rfidCode: '', toolCode: '', toolName: '', toolType: 'TURNING',
     specification: '', machineId: '', machineName: '',
     maxCuttingHours: 500, maxWearLimit: 0.5,
+    originalPrice: 0, threeMonthOutput: 0,
   })
   dialogVisible.value = true
 }
@@ -216,6 +242,7 @@ function handleEdit(row) {
     toolType: row.toolType, specification: row.specification,
     machineId: row.machineId, machineName: row.machineName,
     maxCuttingHours: row.maxCuttingHours, maxWearLimit: row.maxWearLimit,
+    originalPrice: row.originalPrice, threeMonthOutput: row.threeMonthOutput,
   })
   dialogVisible.value = true
 }
@@ -251,6 +278,10 @@ async function handleRecalculate(row) {
     ElMessage.success('健康度重算完成')
     loadData()
   } catch (e) { /* ignore */ }
+}
+
+function goToVoucher(row) {
+  router.push({ path: '/trade-in-vouchers', query: { keyword: row.rfidCode } })
 }
 
 onMounted(loadData)

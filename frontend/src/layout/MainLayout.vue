@@ -33,6 +33,14 @@
           <el-icon><Barcode /></el-icon>
           <span>扫描记录</span>
         </el-menu-item>
+        <el-menu-item index="/trade-in-vouchers">
+          <el-icon><Present /></el-icon>
+          <span>以旧换新</span>
+        </el-menu-item>
+        <el-menu-item index="/tool-budgets">
+          <el-icon><Wallet /></el-icon>
+          <span>预算管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 

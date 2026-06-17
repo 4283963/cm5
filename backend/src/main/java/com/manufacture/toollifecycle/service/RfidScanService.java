@@ -48,6 +48,7 @@ public class RfidScanService {
     private final HealthCalculator healthCalculator;
     private final ErpIntegrationService erpIntegrationService;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final TradeInVoucherService tradeInVoucherService;
 
     @Transactional
     public ToolHealthResult processScan(RfidScanRequest request) {
@@ -85,6 +86,12 @@ public class RfidScanService {
 
         if (SCAN_TYPE_SCRAP.equals(request.getScanType())) {
             tool.setStatus(STATUS_SCRAPPED);
+            machineToolRepository.save(tool);
+            try {
+                tradeInVoucherService.createVoucherForScrappedTool(tool.getId());
+            } catch (Exception e) {
+                log.error("报废刀具自动生成折价凭证失败: toolId={}, error={}", tool.getId(), e.getMessage());
+            }
         } else if (SCAN_TYPE_REPLACE.equals(request.getScanType())) {
             tool.setStatus(STATUS_REPLACED);
         } else if (healthResult.isNeedsReplacement()) {

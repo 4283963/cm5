@@ -66,6 +66,18 @@ public class MachineTool {
     @Builder.Default
     private BigDecimal maxWearLimit = new BigDecimal("0.5000");
 
+    @Column(name = "original_price", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal originalPrice = BigDecimal.ZERO;
+
+    @Column(name = "residual_value", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal residualValue = BigDecimal.ZERO;
+
+    @Column(name = "three_month_output", precision = 14, scale = 2)
+    @Builder.Default
+    private BigDecimal threeMonthOutput = BigDecimal.ZERO;
+
     @Column(name = "installed_time")
     private LocalDateTime installedTime;
 

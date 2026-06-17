@@ -36,6 +36,18 @@ const routes = [
         name: 'ScanRecords',
         component: () => import('../views/ScanRecords.vue'),
         meta: { title: '扫描记录' }
+      },
+      {
+        path: 'trade-in-vouchers',
+        name: 'TradeInVouchers',
+        component: () => import('../views/TradeInVouchers.vue'),
+        meta: { title: '以旧换新' }
+      },
+      {
+        path: 'tool-budgets',
+        name: 'ToolBudgets',
+        component: () => import('../views/ToolBudgets.vue'),
+        meta: { title: '预算管理' }
       }
     ]
   }
