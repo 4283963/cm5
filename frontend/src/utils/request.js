@@ -13,7 +13,16 @@ request.interceptors.response.use(
   response => {
     const res = response.data
     if (res.code !== 200) {
-      ElMessage.error(res.message || '请求失败')
+      if (res.code === 409) {
+        ElMessage({
+          type: 'error',
+          message: res.message || '操作被拒绝',
+          duration: 6000,
+          showClose: true,
+        })
+      } else {
+        ElMessage.error(res.message || '请求失败')
+      }
       return Promise.reject(new Error(res.message || '请求失败'))
     }
     return res
